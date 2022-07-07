@@ -1,0 +1,8 @@
+[book]
+authors = ["Fauconfan"]
+language = "en"
+src = "src"
+title = "CmdRun Test Book"
+
+[preprocessor.cmdrun]
+command = "../../target/debug/mdbook-cmdrun"
