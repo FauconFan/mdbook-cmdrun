@@ -53,15 +53,15 @@ impl CmdRun {
     }
 
     // This method is public for regression tests
-    pub fn run_on_content(content: &String, working_dir: &String) -> Result<String> {
+    pub fn run_on_content(content: &str, working_dir: &str) -> Result<String> {
         let re = Regex::new(r"<!--[ ]*cmdrun(.*)-->\n").unwrap();
         let mut err = None;
 
         let content = re
             .replace_all(content, |caps: &Captures| {
-                let argv: Vec<&str> = caps[1].trim().split(" ").collect();
+                let argv: Vec<&str> = caps[1].trim().split(' ').collect();
 
-                match CmdRun::run_cmdrun(&argv, &working_dir) {
+                match CmdRun::run_cmdrun(&argv, working_dir) {
                     Ok(s) => s,
                     Err(e) => {
                         err = Some(e);
@@ -77,7 +77,7 @@ impl CmdRun {
         }
     }
 
-    fn run_cmdrun(argv: &Vec<&str>, working_dir: &String) -> Result<String> {
+    fn run_cmdrun(argv: &[&str], working_dir: &str) -> Result<String> {
         let output = Command::new(argv[0])
             .args(&argv[1..])
             .stdin(Stdio::null())

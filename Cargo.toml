@@ -2,6 +2,11 @@
 name = "mdbook-cmdrun"
 version = "0.1.0"
 edition = "2021"
+authors = ["FauconFan <joseph0priou@gmail.com>"]
+description = "mdbook preprocessor to run arbitrary commands"
+license = "MIT"
+homepage = "https://github.com/FauconFan/mdbook-cmdrun"
+repository = "https://github.com/FauconFan/mdbook-cmdrun"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

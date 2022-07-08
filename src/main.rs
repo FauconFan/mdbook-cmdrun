@@ -50,7 +50,7 @@ fn handle_preprocessing() -> Result<(), Error> {
 
 fn handle_supports(sub_args: &ArgMatches) -> ! {
     let renderer = sub_args.value_of("renderer").expect("Required argument");
-    let supported = CmdRun.supports_renderer(&renderer);
+    let supported = CmdRun.supports_renderer(renderer);
 
     // Signal whether the renderer is supported by exiting with 1 or 0.
     if supported {

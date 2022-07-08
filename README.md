@@ -1,3 +1,6 @@
+[![Workflow Status](https://github.com/FauconFan/mdbook-cmdrun/actions/workflows/main.yml/badge.svg)](https://github.com/FauconFan/mdbook-cmdrun/actions?query=workflow%3A%22main%22)
+![Crates.io](https://img.shields.io/crates/l/mdbook-cmdrun)
+
 # mdbook-cmdrun
 
 This is a preprocessor for the [rust-lang mdbook](https://github.com/rust-lang/mdBook) project. This allows to run arbitrary commands and include the output of these commands within the readme file.
@@ -17,13 +20,13 @@ Markdown file: file.md
 Python file: script.py
 ```python
 def main():
-	print("## Generated subtitle")
-	print("  This comes from the script.py file")
-	print("  Since I'm at in a scripting language,")
-	print("  I can compute whatever I want")
+    print("## Generated subtitle")
+    print("  This comes from the script.py file")
+    print("  Since I'm at in a scripting language,")
+    print("  I can compute whatever I want")
 
 if __name__ == "__main__":
-	main()
+    main()
 
 ```
 
@@ -50,3 +53,6 @@ The preprocessor will call seq then python3, and will produce the resulting file
 
 
 ```
+
+Current version: 0.1.0  
+License: MIT
