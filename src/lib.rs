@@ -48,6 +48,21 @@
 //!
 //!
 //! ```
+//!
+//! # Installation
+//!
+//! ```sh
+//! cargo install mdbook-cmdrun
+//! ```
+//!
+//! You also have to activate the preprocessor, put this in your `book.toml` file:
+//! ```toml
+//! [preprocessor.cmdrun]
+//! ```
+//!
+//! # Examples
+//!
+//! For more examples you can look into this folder [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/)
 pub mod cmdrun;
 mod utils;
 

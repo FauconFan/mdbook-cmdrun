@@ -54,5 +54,20 @@ The preprocessor will call seq then python3, and will produce the resulting file
 
 ```
 
+## Installation
+
+```sh
+cargo install mdbook-cmdrun
+```
+
+You also have to activate the preprocessor, put this in your `book.toml` file:
+```toml
+[preprocessor.cmdrun]
+```
+
+## Examples
+
+For more examples you can look into this folder [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/)
+
 Current version: 0.1.0  
 License: MIT
