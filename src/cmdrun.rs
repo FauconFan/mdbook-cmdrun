@@ -14,34 +14,6 @@ use std::process::{Command, Stdio};
 
 pub struct CmdRun;
 
-fn map_chapter<F>(book: &mut Book, func: &mut F) -> Result<()>
-where
-    F: FnMut(&mut Chapter) -> Result<()>,
-{
-    fn _map_chapter_on<F>(item: &mut BookItem, func: &mut F) -> Result<()>
-    where
-        F: FnMut(&mut Chapter) -> Result<()>,
-    {
-        match item {
-            BookItem::Chapter(ref mut chapter) => {
-                func(chapter)?;
-
-                for sub_item in &mut chapter.sub_items {
-                    _map_chapter_on(sub_item, func)?;
-                }
-            }
-            BookItem::PartTitle(_) | BookItem::Separator => {}
-        }
-        Ok(())
-    }
-
-    for item in &mut book.sections {
-        _map_chapter_on(item, func)?;
-    }
-
-    Ok(())
-}
-
 impl Preprocessor for CmdRun {
     fn name(&self) -> &str {
         "cmdrun"
@@ -52,10 +24,38 @@ impl Preprocessor for CmdRun {
     }
 
     fn run(&self, _ctx: &PreprocessorContext, mut book: Book) -> Result<Book> {
-        map_chapter(&mut book, &mut run_on_chapter)?;
+        map_chapter(&mut book, run_on_chapter)?;
 
         Ok(book)
     }
+}
+
+fn map_chapter<F>(book: &mut Book, mut func: F) -> Result<()>
+where
+    F: FnMut(&mut Chapter) -> Result<()>,
+{
+    fn _map_chapter_on<F>(item: &mut BookItem, mut func: F) -> Result<()>
+    where
+        F: FnMut(&mut Chapter) -> Result<()>,
+    {
+        match item {
+            BookItem::Chapter(ref mut chapter) => {
+                func(chapter)?;
+
+                for sub_item in &mut chapter.sub_items {
+                    _map_chapter_on(sub_item, &mut func)?;
+                }
+            }
+            BookItem::PartTitle(_) | BookItem::Separator => {}
+        }
+        Ok(())
+    }
+
+    for item in &mut book.sections {
+        _map_chapter_on(item, &mut func)?;
+    }
+
+    Ok(())
 }
 
 fn run_on_chapter(chapter: &mut Chapter) -> Result<()> {
@@ -66,22 +66,20 @@ fn run_on_chapter(chapter: &mut Chapter) -> Result<()> {
         .replace_all(&chapter.content, |caps: &Captures| {
             let argv: Vec<&str> = caps[1].trim().split(" ").collect();
 
-            let replacement = match run_cmdrun(&argv, &chapter.path) {
+            match run_cmdrun(&argv, &chapter.path) {
                 Ok(s) => s,
                 Err(e) => {
                     err = Some(e);
                     String::new()
                 }
-            };
-            replacement
+            }
         })
         .to_string();
 
-    if let Some(err) = err {
-        return Err(err);
+    match err {
+        None => Ok(()),
+        Some(err) => Err(err),
     }
-
-    Ok(())
 }
 
 fn run_cmdrun(argv: &Vec<&str>, path: &Option<PathBuf>) -> Result<String> {
