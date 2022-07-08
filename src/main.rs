@@ -8,17 +8,6 @@ use std::process;
 
 use mdbook_cmdrun::CmdRun;
 
-pub fn make_app() -> Command<'static> {
-    Command::new("mdbook-toc")
-        .version(crate_version!())
-        .about("mdbook preprocessor to add Table of Contents")
-        .subcommand(
-            Command::new("supports")
-                .arg(Arg::new("renderer").required(true))
-                .about("Check whether a renderer is supported by this preprocessor"),
-        )
-}
-
 fn main() {
     let matches = make_app().get_matches();
 
@@ -28,6 +17,17 @@ fn main() {
         eprintln!("{}", e);
         process::exit(1);
     }
+}
+
+fn make_app() -> Command<'static> {
+    Command::new("mdbook-toc")
+        .version(crate_version!())
+        .about("mdbook preprocessor to add Table of Contents")
+        .subcommand(
+            Command::new("supports")
+                .arg(Arg::new("renderer").required(true))
+                .about("Check whether a renderer is supported by this preprocessor"),
+        )
 }
 
 fn handle_preprocessing() -> Result<(), Error> {
