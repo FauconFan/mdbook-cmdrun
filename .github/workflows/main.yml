@@ -37,6 +37,7 @@ jobs:
         with:
           toolchain: stable
       - run: cargo install cargo-all-features
+      - run: cargo install mdbook
       - run: cargo test-all-features
       - run: cargo test-all-features --release
 
