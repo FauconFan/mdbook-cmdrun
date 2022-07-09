@@ -55,9 +55,21 @@ fn check_all_regressions_dirs() {
 
     entries.sort();
 
-    assert_eq!(entries, vec!["factorial", "fibonacci", "readme"]);
+    // If you update this, we have to update the list add_dir! below
+    assert_eq!(
+        entries,
+        vec![
+            "bash_call",
+            "py_factorial",
+            "py_fibonacci",
+            "py_readme",
+            "rust_call"
+        ]
+    );
 }
 
-add_dir!(readme);
-add_dir!(factorial);
-add_dir!(fibonacci);
+add_dir!(bash_call);
+add_dir!(py_readme);
+add_dir!(py_factorial);
+add_dir!(py_fibonacci);
+add_dir!(rust_call);
