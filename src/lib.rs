@@ -1,4 +1,4 @@
-//! This is a preprocessor for the [rust-lang mdbook](https://github.com/rust-lang/mdBook) project. This allows to run arbitrary commands and include the output of these commands within the readme file.
+//! This is a preprocessor for the [rust-lang mdbook](https://github.com/rust-lang/mdBook) project. This allows to run arbitrary (shell) commands and include the output of these commands within the markdown file.
 //!
 //! Let's say we have these two files:
 //!

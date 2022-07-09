@@ -63,7 +63,8 @@ fn check_all_regressions_dirs() {
             "py_factorial",
             "py_fibonacci",
             "py_readme",
-            "rust_call"
+            "rust_call",
+            "shell",
         ]
     );
 }
@@ -73,3 +74,4 @@ add_dir!(py_readme);
 add_dir!(py_factorial);
 add_dir!(py_fibonacci);
 add_dir!(rust_call);
+add_dir!(shell);

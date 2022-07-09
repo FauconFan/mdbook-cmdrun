@@ -9,7 +9,7 @@ use regex::Captures;
 use regex::Regex;
 
 use std::path::Path;
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use crate::utils::map_chapter;
 
@@ -54,7 +54,7 @@ impl CmdRun {
 
     // This method is public for regression tests
     pub fn run_on_content(content: &str, working_dir: &str) -> Result<String> {
-        let re = Regex::new(r"<!--[ ]*cmdrun(.*)-->\n").unwrap();
+        let re = Regex::new(r"<!--[ ]*cmdrun (.*)-->\n").unwrap();
         let mut err = None;
 
         let content = re
@@ -75,57 +75,21 @@ impl CmdRun {
         }
     }
 
-    fn run_cmdrun(command: String, working_dir: &str) -> Result<String> {
-        let mut res = String::new();
+    // This method is public for unit tests
+    pub fn run_cmdrun(command: String, working_dir: &str) -> Result<String> {
+        let output = Command::new("sh")
+            .args(["-c", &command])
+            .current_dir(working_dir)
+            .output()
+            .with_context(|| "Fail to run shell")?;
 
-        for command in command.split(';') {
-            let mut previous_stdout = None;
-            let connected_commands: Vec<_> = command.split('|').collect();
-            // let mut childs = vec![];
+        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
-            for index in 0..(connected_commands.len() - 1) {
-                let words: Vec<_> = connected_commands[index]
-                    .split(' ')
-                    .filter(|s| s.len() > 0)
-                    .collect();
+        // eprintln!("command: {}", command);
+        // eprintln!("stdout: {:?}", stdout);
+        // eprintln!("stderr: {:?}", stderr);
 
-                let mut command = Command::new(words[0]);
-                command.args(&words[1..]);
-                command.current_dir(working_dir);
-
-                if let Some(stdout) = previous_stdout {
-                    command.stdin(stdout);
-                }
-
-                command.stdout(Stdio::piped());
-
-                let mut child = command
-                    .spawn()
-                    .with_context(|| format!("Fail to spawn child with command {:?}", words))?;
-
-                previous_stdout = child.stdout.take();
-            }
-
-            {
-                let last_command = connected_commands[connected_commands.len() - 1];
-                let words: Vec<_> = last_command.split(' ').filter(|s| s.len() > 0).collect();
-
-                let mut command = Command::new(words[0]);
-                command.args(&words[1..]);
-                command.current_dir(working_dir);
-
-                if let Some(stdout) = previous_stdout {
-                    command.stdin(stdout);
-                }
-
-                let output = command
-                    .output()
-                    .with_context(|| format!("Fail to spawn child with command {:?}", words))?;
-
-                res.push_str(&String::from_utf8_lossy(&output.stdout))
-            }
-        }
-
-        Ok(res)
+        Ok(stdout)
     }
 }
