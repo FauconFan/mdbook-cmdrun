@@ -5,6 +5,19 @@
 
 This is a preprocessor for the [rust-lang mdbook](https://github.com/rust-lang/mdBook) project. This allows to run arbitrary (shell) commands and include the output of these commands within the markdown file.
 
+## Getting started
+
+```sh
+cargo install mdbook-cmdrun
+```
+
+You also have to activate the preprocessor, put this in your `book.toml` file:
+```toml
+[preprocessor.cmdrun]
+```
+
+## How to
+
 Let's say we have these two files:
 
 Markdown file: file.md
@@ -54,20 +67,40 @@ The preprocessor will call seq then python3, and will produce the resulting file
 
 ```
 
-## Installation
+## Details
 
-```sh
-cargo install mdbook-cmdrun
-```
-
-You also have to activate the preprocessor, put this in your `book.toml` file:
-```toml
-[preprocessor.cmdrun]
-```
+When the pattern `<!-- cmdrun $1 -->\n` is encountered, the command `$1` will be run using the shell `sh` like this: `sh -c $1`.
+Also the working directory is the directory where the pattern was found (not root).
+Any command that takes no input, but a list of command lines arguments and produce output in stdout, stderr is ignored.
 
 ## Examples
 
-For more examples you can look into this folder [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/)
+The following is valid:
+
+````markdown
+
+<!-- runcmd python3 generate_table.py -->
+
+```rust
+<!-- runcmd cat program.rs -->
+```
+
+```diff
+<!-- runcmd diff a.rs b.rs -->
+```
+
+```console
+<!-- runcmd ls -l . -->
+```
+````
+
+Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
+At the moment of writing, there are examples using:
+- Shell
+- Bash script
+- Python3
+- Rust
+
 
 Current version: 0.1.0  
 License: MIT

@@ -16,3 +16,25 @@
   Since I'm at in a scripting language,
   I can compute whatever I want
 
+| Column A | Column B |
+|---|---|
+| Value 'a' | Value 'b' |
+
+```rust
+```
+
+```diff
+2c2
+<     println!("I'm from `a.rs`");
+---
+>     println!("I'm from `b.rs`");
+```
+
+```console
+output.md
+input.md
+script.py
+generate_table.py
+a.rs
+b.rs
+```
