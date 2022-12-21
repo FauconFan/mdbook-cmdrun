@@ -74,18 +74,18 @@
 //!
 //! ````markdown
 //!
-//! <!-- runcmd python3 generate_table.py -->
+//! <!-- cmdrun python3 generate_table.py -->
 //!
 //! ```rust
-//! <!-- runcmd cat program.rs -->
+//! <!-- cmdrun cat program.rs -->
 //! ```
 //!
 //! ```diff
-//! <!-- runcmd diff a.rs b.rs -->
+//! <!-- cmdrun diff a.rs b.rs -->
 //! ```
 //!
 //! ```console
-//! <!-- runcmd ls -l . -->
+//! <!-- cmdrun ls -l . -->
 //! ```
 //! ````
 //!
