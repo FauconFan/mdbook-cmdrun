@@ -102,5 +102,5 @@ At the moment of writing, there are examples using:
 - Rust
 
 
-Current version: 0.2.0  
+Current version: 0.4.0  
 License: MIT
