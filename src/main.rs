@@ -1,4 +1,4 @@
-use clap::{crate_version, Arg, ArgMatches, Command};
+use clap::{Arg, ArgMatches, Command};
 use mdbook::errors::Error;
 use mdbook::preprocess::CmdPreprocessor;
 use mdbook::preprocess::Preprocessor;
@@ -21,7 +21,6 @@ fn main() {
 
 fn make_app() -> Command<'static> {
     Command::new("mdbook-toc")
-        .version(crate_version!())
         .about("mdbook preprocessor to add Table of Contents")
         .subcommand(
             Command::new("supports")
