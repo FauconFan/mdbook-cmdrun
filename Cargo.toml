@@ -1,6 +1,6 @@
 [package]
 name = "mdbook-cmdrun"
-version = "0.4.0"
+version = "0.5.0"
 edition = "2021"
 authors = ["FauconFan <joseph0priou@gmail.com>"]
 description = "mdbook preprocessor to run arbitrary commands"
