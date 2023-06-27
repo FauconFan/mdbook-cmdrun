@@ -1,0 +1,3 @@
+@echo off
+echo I am run from a batch script
+echo   end ending...
