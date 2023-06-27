@@ -13,9 +13,17 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::utils::map_chapter;
+use lazy_static::lazy_static;
 use std::borrow::Cow;
 
 pub struct CmdRun;
+
+lazy_static! {
+    static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[\r\n]+")
+        .expect("Failed to compute regex for finding pattern");
+    static ref CMDRUN_REG_INLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[^\r\n]")
+        .expect("Failed to compute regex for finding pattern");
+}
 
 cfg_if! {
     if #[cfg(any(target_family = "unix", target_family = "other"))] {
@@ -66,12 +74,27 @@ impl CmdRun {
 
     // This method is public for regression tests
     pub fn run_on_content(content: &str, working_dir: &str) -> Result<String> {
-        let re = Regex::new(r"<!--[ ]*cmdrun (.*)-->").unwrap();
         let mut err = None;
 
-        let content = re
+        let mut result = CMDRUN_REG_NEWLINE
             .replace_all(content, |caps: &Captures| {
-                match CmdRun::run_cmdrun(caps[1].to_string(), working_dir) {
+                match Self::run_cmdrun(caps[1].to_string(), working_dir, false) {
+                    Ok(s) => s,
+                    Err(e) => {
+                        err = Some(e);
+                        String::new()
+                    }
+                }
+            })
+            .to_string();
+
+        if let Some(e) = err {
+            return Err(e);
+        }
+
+        result = CMDRUN_REG_INLINE
+            .replace_all(result.as_str(), |caps: &Captures| {
+                match Self::run_cmdrun(caps[1].to_string(), working_dir, true) {
                     Ok(s) => s,
                     Err(e) => {
                         err = Some(e);
@@ -82,39 +105,57 @@ impl CmdRun {
             .to_string();
 
         match err {
-            None => Ok(content),
+            None => Ok(result),
             Some(err) => Err(err),
         }
     }
 
     #[cfg(target_family = "windows")]
-    fn correct_linebreaks(str: Cow<'_, str>) -> String {
-        let mut res = String::with_capacity(str.len());
-        let count = str.lines().count();
-        for (i, line) in str.lines().enumerate() {
-            res.push_str(line);
-            if i < count - 1 {
-                res.push_str("\r\n");
+    fn correct_linebreaks(str: Cow<'_, str>, inline: bool) -> String {
+        match inline {
+            true => {
+                let str = str.trim_end();
+                let mut res = String::with_capacity(str.len());
+                let count = str.lines().count();
+
+                for (i, line) in str.lines().enumerate() {
+                    res.push_str(line);
+                    if i < count - 1 {
+                        res.push_str("\r\n");
+                    }
+                }
+
+                res
+            }
+            false => {
+                let mut res = String::with_capacity(str.len());
+                for line in str.lines() {
+                    res.push_str(line);
+                    res.push_str("\r\n");
+                }
+
+                res
             }
         }
-
-        return res;
     }
 
     #[cfg(any(target_family = "unix", target_family = "other"))]
-    fn correct_linebreaks(str: Cow<'_, str>) -> String {
-        return str.to_string();
+    fn correct_linebreaks(str: Cow<'_, str>, inline: bool) -> String {
+        match inline {
+            true => str.trim_end().to_string(),
+            false => str.to_string(),
+        }
     }
 
     // This method is public for unit tests
-    pub fn run_cmdrun(command: String, working_dir: &str) -> Result<String> {
+    pub fn run_cmdrun(command: String, working_dir: &str, inline: bool) -> Result<String> {
         let output = Command::new(LAUNCH_SHELL_COMMAND)
             .args([LAUNCH_SHELL_FLAG, &command])
             .current_dir(working_dir)
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout));
+        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout), inline);
 
         // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
