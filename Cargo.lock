@@ -885,6 +885,7 @@ name = "mdbook-cmdrun"
 version = "0.5.0"
 dependencies = [
  "anyhow",
+ "cfg-if",
  "clap 3.2.23",
  "mdbook",
  "regex",
