@@ -68,7 +68,6 @@
 //! Also the working directory is the directory where the pattern was found (not root).
 //! The command invoked must take no inputs (stdin is not used), but a list of command lines arguments and must produce output in stdout, stderr is ignored.
 //!
-//! WARNING: This method only works with any system that has a shell `sh` that rust can find. Windows is not supported for now, see [here](https://github.com/FauconFan/mdbook-cmdrun/issues/5) for more.
 //!
 //! # Examples
 //!
