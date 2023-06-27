@@ -17,12 +17,12 @@ use crate::utils::map_chapter;
 pub struct CmdRun;
 
 cfg_if! {
-    if #[cfg(target_family = "windows")] {
-        const LAUNCH_SHELL_COMMAND: &str = "cmd";
-        const LAUNCH_SHELL_FLAG: &str = "/C";
-    } else if #[cfg(any(target_family = "unix", target_family = "other"))] {
+    if #[cfg(any(target_family = "unix", target_family = "other"))] {
         const LAUNCH_SHELL_COMMAND: &str = "sh";
         const LAUNCH_SHELL_FLAG: &str = "-c";
+    } else if #[cfg(target_family = "windows")] {
+        const LAUNCH_SHELL_COMMAND: &str = "cmd";
+        const LAUNCH_SHELL_FLAG: &str = "/C";
     }
 }
 
@@ -86,6 +86,25 @@ impl CmdRun {
         }
     }
 
+    #[cfg(target_family = "windows")]
+    fn correct_linebreaks(str: &str) -> String {
+        let mut res = String::with_capacity(str.len());
+        let count = str.lines().count();
+        for (i, line) in str.lines().enumerate() {
+            res.push_str(line);
+            if i < count - 1 {
+                res.push_str("\r\n");
+            }
+        }
+
+        return res;
+    }
+
+    #[cfg(any(target_family = "unix", target_family = "other"))]
+    fn correct_linebreaks(str: &str) -> String {
+        return str.to_string();
+    }
+
     // This method is public for unit tests
     pub fn run_cmdrun(command: String, working_dir: &str) -> Result<String> {
         let output = Command::new(LAUNCH_SHELL_COMMAND)
@@ -94,9 +113,7 @@ impl CmdRun {
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout)
-            .trim_end()
-            .to_string();
+        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout).trim_end());
 
         // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
