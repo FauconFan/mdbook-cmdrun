@@ -1,5 +1,6 @@
 use anyhow::Context;
 use anyhow::Result;
+use cfg_if::cfg_if;
 
 use mdbook::book::Book;
 use mdbook::book::Chapter;
@@ -15,15 +16,15 @@ use crate::utils::map_chapter;
 
 pub struct CmdRun;
 
-#[cfg(any(target_family = "unix", target_family = "other"))]
-const LAUNCH_SHELL_COMMAND: &str = "sh";
-#[cfg(any(target_family = "unix", target_family = "other"))]
-const LAUNCH_SHELL_FLAG: &str = "-c";
-
-#[cfg(target_family = "windows")]
-const LAUNCH_SHELL_COMMAND: &str = "cmd";
-#[cfg(target_family = "windows")]
-const LAUNCH_SHELL_FLAG: &str = "/c";
+cfg_if! {
+    if #[cfg(target_family = "windows")] {
+        const LAUNCH_SHELL_COMMAND: &str = "cmd";
+        const LAUNCH_SHELL_FLAG: &str = "/C";
+    } else if #[cfg(any(target_family = "unix", target_family = "other"))] {
+        const LAUNCH_SHELL_COMMAND: &str = "sh";
+        const LAUNCH_SHELL_FLAG: &str = "-c";
+    }
+}
 
 impl Preprocessor for CmdRun {
     fn name(&self) -> &str {
@@ -64,7 +65,7 @@ impl CmdRun {
 
     // This method is public for regression tests
     pub fn run_on_content(content: &str, working_dir: &str) -> Result<String> {
-        let re = Regex::new(r"<!--[ ]*cmdrun (.*)-->\n").unwrap();
+        let re = Regex::new(r"<!--[ ]*cmdrun (.*)-->").unwrap();
         let mut err = None;
 
         let content = re
@@ -93,7 +94,10 @@ impl CmdRun {
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+        let stdout = String::from_utf8_lossy(&output.stdout)
+            .trim_end()
+            .to_string();
+
         // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
         // eprintln!("command: {}", command);
