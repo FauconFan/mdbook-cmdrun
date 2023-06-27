@@ -13,6 +13,7 @@ use std::path::Path;
 use std::process::Command;
 
 use crate::utils::map_chapter;
+use std::borrow::Cow;
 
 pub struct CmdRun;
 
@@ -87,7 +88,7 @@ impl CmdRun {
     }
 
     #[cfg(target_family = "windows")]
-    fn correct_linebreaks(str: &str) -> String {
+    fn correct_linebreaks(str: Cow<'_, str>) -> String {
         let mut res = String::with_capacity(str.len());
         let count = str.lines().count();
         for (i, line) in str.lines().enumerate() {
@@ -101,7 +102,7 @@ impl CmdRun {
     }
 
     #[cfg(any(target_family = "unix", target_family = "other"))]
-    fn correct_linebreaks(str: &str) -> String {
+    fn correct_linebreaks(str: Cow<'_, str>) -> String {
         return str.to_string();
     }
 
@@ -113,7 +114,7 @@ impl CmdRun {
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout).trim_end());
+        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout));
 
         // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
