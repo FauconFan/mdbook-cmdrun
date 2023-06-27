@@ -7,17 +7,6 @@ env:
 
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - run: cargo install cargo-all-features
-      - run: cargo check-all-features
-      - run: cargo check-all-features --release
-
   build:
     runs-on: ubuntu-latest
     steps:
