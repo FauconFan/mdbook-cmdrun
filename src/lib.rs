@@ -68,6 +68,7 @@
 //! Also the working directory is the directory where the pattern was found (not root).
 //! The command invoked must take no inputs (stdin is not used), but a list of command lines arguments and must produce output in stdout, stderr is ignored.
 //!
+//! As of July 2023 runs on Windows platforms via using the `cmd` shell!
 //!
 //! # Examples
 //!
