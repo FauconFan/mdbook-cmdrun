@@ -40,7 +40,7 @@ cfg_if! {
         add_test!(
             mixed1,
             "yes 42 | head -n 4 | sed -z 's/\\n/  \\n/g'",
-            "42  \r\n42  \r\n42  \r\n42"
+            "42  \r\n42  \r\n42  \r\n42  "
         );
     }
 }
