@@ -15,14 +15,14 @@ use crate::utils::map_chapter;
 
 pub struct CmdRun;
 
-#[cfg(not(windows))]
+#[cfg(any(target_family = "unix", target_family = "other"))]
 const LAUNCH_SHELL_COMMAND: &str = "sh";
-#[cfg(not(windows))]
+#[cfg(any(target_family = "unix", target_family = "other"))]
 const LAUNCH_SHELL_FLAG: &str = "-c";
 
-#[cfg(windows)]
+#[cfg(target_family = "windows")]
 const LAUNCH_SHELL_COMMAND: &str = "cmd";
-#[cfg(windows)]
+#[cfg(target_family = "windows")]
 const LAUNCH_SHELL_FLAG: &str = "/c";
 
 impl Preprocessor for CmdRun {
