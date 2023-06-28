@@ -8,8 +8,13 @@ use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 use regex::Captures;
 use regex::Regex;
 
+use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
+
+use lazy_static::lazy_static;
+use serde::Deserialize;
 
 use crate::utils::map_chapter;
 
@@ -41,21 +46,41 @@ impl Preprocessor for CmdRun {
     }
 }
 
+lazy_static! {
+    static ref SRC_DIR: String = get_src_dir();
+}
+
+#[derive(Deserialize)]
+struct BookConfig {
+    book: BookField,
+}
+
+#[derive(Deserialize)]
+struct BookField {
+    src: Option<String>,
+}
+
+fn get_src_dir() -> String {
+    fs::read_to_string(Path::new("book.toml"))
+        .map_err(|_| None::<String>)
+        .and_then(|fc| toml::from_str::<BookConfig>(fc.as_str()).map_err(|_| None))
+        .and_then(|bc| bc.book.src.ok_or_else(|| None))
+        .unwrap_or_else(|_| String::from("src"))
+}
+
 impl CmdRun {
     fn run_on_chapter(chapter: &mut Chapter) -> Result<()> {
-        let working_dir = match &chapter.path {
-            None => String::new(),
-            Some(pathbuf) => {
-                let pathbuf = Path::new("src").join(pathbuf);
-                match pathbuf.parent() {
-                    None => String::new(),
-                    Some(parent) => match parent.to_str() {
-                        None => String::new(),
-                        Some(s) => String::from(s),
-                    },
-                }
-            }
-        };
+        let working_dir = &chapter
+            .path
+            .to_owned()
+            .and_then(|p| {
+                Path::new(SRC_DIR.as_str())
+                    .join(p)
+                    .parent()
+                    .map(PathBuf::from)
+            })
+            .and_then(|p| p.to_str().map(String::from))
+            .unwrap_or_else(String::new);
 
         chapter.content = CmdRun::run_on_content(&chapter.content, &working_dir)?;
 
