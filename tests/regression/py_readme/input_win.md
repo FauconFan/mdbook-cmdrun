@@ -15,5 +15,5 @@
 ```
 
 ```console
-<-- cmdrun ls -1 -S . -->
+<!-- cmdrun ls -1 -S . -->
 ```
