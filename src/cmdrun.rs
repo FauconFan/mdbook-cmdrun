@@ -19,7 +19,7 @@ use std::borrow::Cow;
 pub struct CmdRun;
 
 lazy_static! {
-    static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[\r\n]+")
+    static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->\r?\n")
         .expect("Failed to compute regex for finding pattern");
     static ref CMDRUN_REG_INLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[^\r\n]")
         .expect("Failed to compute regex for finding pattern");
@@ -78,13 +78,10 @@ impl CmdRun {
 
         let mut result = CMDRUN_REG_NEWLINE
             .replace_all(content, |caps: &Captures| {
-                match Self::run_cmdrun(caps[1].to_string(), working_dir, false) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        err = Some(e);
-                        String::new()
-                    }
-                }
+                Self::run_cmdrun(caps[1].to_string(), working_dir, false).unwrap_or_else(|e| {
+                    err = Some(e);
+                    String::new()
+                })
             })
             .to_string();
 
@@ -94,13 +91,10 @@ impl CmdRun {
 
         result = CMDRUN_REG_INLINE
             .replace_all(result.as_str(), |caps: &Captures| {
-                match Self::run_cmdrun(caps[1].to_string(), working_dir, true) {
-                    Ok(s) => s,
-                    Err(e) => {
-                        err = Some(e);
-                        String::new()
-                    }
-                }
+                Self::run_cmdrun(caps[1].to_string(), working_dir, true).unwrap_or_else(|e| {
+                    err = Some(e);
+                    String::new()
+                })
             })
             .to_string();
 
@@ -112,12 +106,11 @@ impl CmdRun {
 
     #[cfg(target_family = "windows")]
     fn correct_linebreaks(str: Cow<'_, str>, inline: bool) -> String {
+        let mut res = String::with_capacity(str.len());
         match inline {
             true => {
                 let str = str.trim_end();
-                let mut res = String::with_capacity(str.len());
                 let count = str.lines().count();
-
                 for (i, line) in str.lines().enumerate() {
                     res.push_str(line);
                     if i < count - 1 {
@@ -128,7 +121,6 @@ impl CmdRun {
                 res
             }
             false => {
-                let mut res = String::with_capacity(str.len());
                 for line in str.lines() {
                     res.push_str(line);
                     res.push_str("\r\n");

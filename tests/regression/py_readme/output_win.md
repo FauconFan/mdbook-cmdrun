@@ -21,7 +21,6 @@
 | Value 'a' | Value 'b' |
 
 ```rust
-
 ```
 
 ```diff
