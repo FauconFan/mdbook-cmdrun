@@ -31,8 +31,8 @@
 ```
 
 ```console
-output_win.md
 output.md
+output_win.md
 input.md
 input_win.md
 script.py
