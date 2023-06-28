@@ -20,9 +20,9 @@ pub struct CmdRun;
 
 lazy_static! {
     static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->\r?\n")
-        .expect("Failed to compute regex for finding pattern");
+        .expect("Failed to init regex for finding newline pattern");
     static ref CMDRUN_REG_INLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[^\r\n]")
-        .expect("Failed to compute regex for finding pattern");
+        .expect("Failed to init regex for finding inline pattern");
 }
 
 cfg_if! {
