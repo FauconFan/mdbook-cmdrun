@@ -15,6 +15,16 @@ use crate::utils::map_chapter;
 
 pub struct CmdRun;
 
+#[cfg(any(target_family = "unix", target_family = "other"))]
+const LAUNCH_SHELL_COMMAND: &str = "sh";
+#[cfg(any(target_family = "unix", target_family = "other"))]
+const LAUNCH_SHELL_FLAG: &str = "-c";
+
+#[cfg(target_family = "windows")]
+const LAUNCH_SHELL_COMMAND: &str = "cmd";
+#[cfg(target_family = "windows")]
+const LAUNCH_SHELL_FLAG: &str = "/c";
+
 impl Preprocessor for CmdRun {
     fn name(&self) -> &str {
         "cmdrun"
@@ -77,8 +87,8 @@ impl CmdRun {
 
     // This method is public for unit tests
     pub fn run_cmdrun(command: String, working_dir: &str) -> Result<String> {
-        let output = Command::new("sh")
-            .args(["-c", &command])
+        let output = Command::new(LAUNCH_SHELL_COMMAND)
+            .args([LAUNCH_SHELL_FLAG, &command])
             .current_dir(working_dir)
             .output()
             .with_context(|| "Fail to run shell")?;
