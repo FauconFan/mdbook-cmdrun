@@ -105,6 +105,12 @@ Juicy Apples | <!-- cmdrun node price.mjs apples --> | *<!-- cmdrun node quantit
 Bananas | *<!-- cmdrun node price.mjs bananas -->* | <!-- cmdrun node quantity.mjs bananas -->
 ````
 
+Which gets rendered as:
+Item | Price | # In stock
+---|---|---
+Juicy Apples | 1.99 | *7*
+Bananas | *1.89* | 5234
+
 
 Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
 At the moment of writing, there are examples using:
