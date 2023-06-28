@@ -19,9 +19,9 @@ use std::borrow::Cow;
 pub struct CmdRun;
 
 lazy_static! {
-    static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->\r?\n")
+    static ref CMDRUN_REG_NEWLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*?)-->\r?\n")
         .expect("Failed to init regex for finding newline pattern");
-    static ref CMDRUN_REG_INLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*)-->[^\r\n]")
+    static ref CMDRUN_REG_INLINE: Regex = Regex::new(r"<!--[ ]*cmdrun (.*?)-->")
         .expect("Failed to init regex for finding inline pattern");
 }
 
