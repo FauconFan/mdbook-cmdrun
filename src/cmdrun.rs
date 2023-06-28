@@ -104,36 +104,32 @@ impl CmdRun {
         }
     }
 
+    // Some progams output linebreaks in UNIX format,
+    // this can cause problems on Windows if for any reason
+    // the user is expecting consistent linebreaks,
+    // e.g. they run the resulting markdown through a validation tool.
+    //
+    // So this function simply replaces all linebreaks with Windows linebreaks.
     #[cfg(target_family = "windows")]
-    fn correct_linebreaks(str: Cow<'_, str>, inline: bool) -> String {
-        let mut res = String::with_capacity(str.len());
-        match inline {
-            true => {
-                let str = str.trim_end();
-                let count = str.lines().count();
-                for (i, line) in str.lines().enumerate() {
-                    res.push_str(line);
-                    if i < count - 1 {
-                        res.push_str("\r\n");
-                    }
-                }
+    fn format_whitespace(str: Cow<'_, str>, inline: bool) -> String {
+        let str = match inline {
+            // When running inline it is undeseriable to have trailing whitespace
+            true => str.trim_end(),
+            false => str.as_ref(),
+        };
 
-                res
-            }
-            false => {
-                for line in str.lines() {
-                    res.push_str(line);
-                    res.push_str("\r\n");
-                }
-
-                res
-            }
+        let mut res = str.lines().collect::<Vec<_>>().join("\r\n");
+        if !inline && !res.is_empty() {
+            res.push_str("\r\n");
         }
+
+        return res;
     }
 
     #[cfg(any(target_family = "unix", target_family = "other"))]
-    fn correct_linebreaks(str: Cow<'_, str>, inline: bool) -> String {
+    fn format_whitespace(str: Cow<'_, str>, inline: bool) -> String {
         match inline {
+            // Wh;n running inline it is undeseriable to have trailing whitespace
             true => str.trim_end().to_string(),
             false => str.to_string(),
         }
@@ -147,7 +143,7 @@ impl CmdRun {
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        let stdout = Self::correct_linebreaks(String::from_utf8_lossy(&output.stdout), inline);
+        let stdout = Self::format_whitespace(String::from_utf8_lossy(&output.stdout), inline);
 
         // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
 
