@@ -9,5 +9,11 @@ fn build_test_book() {
         .output()
         .unwrap();
 
-    assert_eq!(output.status.code().unwrap(), 0);
+    let status = output.status.code().unwrap();
+    if status != 0 {
+        panic!(
+            "mdbook build failed: {}",
+            String::from_utf8(output.stderr).unwrap()
+        );
+    }
 }

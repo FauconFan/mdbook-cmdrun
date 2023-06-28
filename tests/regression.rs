@@ -73,6 +73,7 @@ fn check_all_regressions_dirs() {
         entries,
         vec![
             "bash_call",
+            "inline_call",
             "py_factorial",
             "py_fibonacci",
             "py_readme",
@@ -83,6 +84,7 @@ fn check_all_regressions_dirs() {
 }
 
 add_dir!(bash_call);
+add_dir!(inline_call);
 add_dir!(py_readme);
 add_dir!(py_factorial);
 add_dir!(py_fibonacci);
