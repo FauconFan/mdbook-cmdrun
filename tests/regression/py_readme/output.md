@@ -31,8 +31,10 @@
 ```
 
 ```console
+output_win.md
 output.md
 input.md
+input_win.md
 script.py
 generate_table.py
 a.rs
