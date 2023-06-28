@@ -48,7 +48,6 @@ macro_rules! add_dir {
 fn check_all_regressions_dirs() {
     let mut entries: Vec<String> = fs::read_dir("./tests/regression")
         .unwrap()
-        .into_iter()
         .map(|r| r.unwrap())
         .map(|de| String::from(de.file_name().to_string_lossy()))
         .collect();

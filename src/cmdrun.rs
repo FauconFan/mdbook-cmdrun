@@ -64,7 +64,7 @@ fn get_src_dir() -> String {
     fs::read_to_string(Path::new("book.toml"))
         .map_err(|_| None::<String>)
         .and_then(|fc| toml::from_str::<BookConfig>(fc.as_str()).map_err(|_| None))
-        .and_then(|bc| bc.book.src.ok_or_else(|| None))
+        .and_then(|bc| bc.book.src.ok_or(None))
         .unwrap_or_else(|_| String::from("src"))
 }
 
@@ -80,9 +80,9 @@ impl CmdRun {
                     .map(PathBuf::from)
             })
             .and_then(|p| p.to_str().map(String::from))
-            .unwrap_or_else(String::new);
+            .unwrap_or_default();
 
-        chapter.content = CmdRun::run_on_content(&chapter.content, &working_dir)?;
+        chapter.content = CmdRun::run_on_content(&chapter.content, working_dir)?;
 
         Ok(())
     }
