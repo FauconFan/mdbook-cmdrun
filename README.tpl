@@ -7,7 +7,7 @@
 
 ## Contributors
 
-I would like to thank @exsjabe for his valuable help with integrating Windows support and inline cmdrun calls.
+I would like to thank [@exsjabe](https://github.com/exsjabe) for his valuable help with integrating Windows support and inline cmdrun calls.
 
 Current version: {{version}}  
 License: {{license}}
