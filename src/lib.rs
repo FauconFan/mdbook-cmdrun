@@ -64,7 +64,7 @@
 //!
 //! # Details
 //!
-//! When the pattern `<!-- cmdrun $1 -->\n` is encountered, the command `$1` will be run using the shell `sh` like this: `sh -c $1`.
+//! When the pattern `<!-- cmdrun $1 -->\n` or `<!-- cmdrun $1 -->` is encountered, the command `$1` will be run using the shell `sh` like this: `sh -c $1`.
 //! Also the working directory is the directory where the pattern was found (not root).
 //! The command invoked must take no inputs (stdin is not used), but a list of command lines arguments and must produce output in stdout, stderr is ignored.
 //!
@@ -89,13 +89,30 @@
 //! ```console
 //! <!-- cmdrun ls -l . -->
 //! ```
+//!
+//! ## Example of inline use inside a table
+//! ````markdown
+//! Item | Price | # In stock
+//! ---|---|---
+//! Juicy Apples | <!-- cmdrun node price.mjs apples --> | *<!-- cmdrun node quantity.mjs apples  -->*
+//! Bananas | *<!-- cmdrun node price.mjs bananas -->* | <!-- cmdrun node quantity.mjs bananas -->
+//! ````
+//!
+//! Which gets rendered as:
+//! ````markdown
+//! Item | Price | # In stock
+//! ---|---|---
+//! Juicy Apples | 1.99 | *7*
+//! Bananas | *1.89* | 5234
 //! ````
 //!
 //! Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
 //! At the moment of writing, there are examples using:
 //! - Shell
 //! - Bash script
+//! - Batch script
 //! - Python3
+//! - Node
 //! - Rust
 //!
 pub mod cmdrun;
