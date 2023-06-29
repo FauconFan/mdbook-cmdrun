@@ -19,7 +19,7 @@ fn main() {
     }
 }
 
-fn make_app() -> Command<'static> {
+fn make_app() -> Command {
     Command::new("mdbook-cmdrun")
         .about("mdbook preprocessor to run arbitrary commands and replace the stdout of these commands inside the markdown file.")
         .subcommand(
@@ -48,7 +48,9 @@ fn handle_preprocessing() -> Result<(), Error> {
 }
 
 fn handle_supports(sub_args: &ArgMatches) -> ! {
-    let renderer = sub_args.value_of("renderer").expect("Required argument");
+    let renderer = sub_args
+        .get_one::<String>("renderer")
+        .expect("Required argument");
     let supported = CmdRun.supports_renderer(renderer);
 
     // Signal whether the renderer is supported by exiting with 1 or 0.
