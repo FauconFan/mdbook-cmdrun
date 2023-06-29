@@ -1,4 +1,15 @@
+use cfg_if::cfg_if;
 use std::fs;
+
+cfg_if! {
+    if #[cfg(any(target_family = "unix", target_family = "other"))] {
+        const INPUT_FILE: &str = "input.md";
+        const OUTPUT_FILE: &str = "output.md";
+    } else if  #[cfg(target_family = "windows")]{
+        const INPUT_FILE: &str = "input_win.md";
+        const OUTPUT_FILE: &str = "output_win.md";
+    }
+}
 
 macro_rules! add_dir {
     ($working_dir:ident) => {
@@ -20,20 +31,23 @@ macro_rules! add_dir {
                 )) {
                     let file = file.unwrap();
 
-                    if file.file_name().as_os_str() == "input.md" {
+                    if file.file_name().as_os_str() == INPUT_FILE {
                         input = Some(file);
-                    } else if file.file_name().as_os_str() == "output.md" {
+                    } else if file.file_name().as_os_str() == OUTPUT_FILE {
                         output = Some(file);
                     }
                 }
 
-                let input = input.expect(&format!("input.md not present in {}", working_dir));
-                let output = output.expect(&format!("output.md not present in {}", working_dir));
+                let input = input.expect(&format!("{} not present in {}", INPUT_FILE, working_dir));
+                let output =
+                    output.expect(&format!("{} not present in {}", OUTPUT_FILE, working_dir));
 
                 let input_content = fs::read_to_string(input.path())
-                    .expect(&format!("unable to read input.md in {}", working_dir));
-                let output_content = fs::read_to_string(output.path())
-                    .expect(&format!("unable to read output.md in {}", working_dir));
+                    .expect(&format!("unable to read {} in {}", INPUT_FILE, working_dir));
+                let output_content = fs::read_to_string(output.path()).expect(&format!(
+                    "unable to read {} in {}",
+                    OUTPUT_FILE, working_dir
+                ));
 
                 let actual_output_content = CmdRun::run_on_content(&input_content, &working_dir)
                     .expect("unable to execute cmdrun");
@@ -59,6 +73,7 @@ fn check_all_regressions_dirs() {
         entries,
         vec![
             "bash_call",
+            "inline_call",
             "py_factorial",
             "py_fibonacci",
             "py_readme",
@@ -69,6 +84,7 @@ fn check_all_regressions_dirs() {
 }
 
 add_dir!(bash_call);
+add_dir!(inline_call);
 add_dir!(py_readme);
 add_dir!(py_factorial);
 add_dir!(py_fibonacci);
