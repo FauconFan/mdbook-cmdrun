@@ -1,25 +1,22 @@
-use anyhow::Context;
-use anyhow::Result;
-use cfg_if::cfg_if;
-
-use mdbook::book::Book;
-use mdbook::book::Chapter;
-use mdbook::preprocess::{Preprocessor, PreprocessorContext};
-
-use regex::Captures;
-use regex::Regex;
-
+use std::borrow::Cow;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
+use anyhow::Context;
+use anyhow::Result;
+use cfg_if::cfg_if;
 use lazy_static::lazy_static;
+use regex::Captures;
+use regex::Regex;
 use serde::Deserialize;
 
+use mdbook::book::Book;
+use mdbook::book::Chapter;
+use mdbook::preprocess::{Preprocessor, PreprocessorContext};
+
 use crate::utils::map_chapter;
-use lazy_static::lazy_static;
-use std::borrow::Cow;
 
 pub struct CmdRun;
 
