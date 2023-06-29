@@ -30,7 +30,7 @@
 //! def main():
 //!     print("## Generated subtitle")
 //!     print("  This comes from the script.py file")
-//!     print("  Since I'm at in a scripting language,")
+//!     print("  Since I'm in a scripting language,")
 //!     print("  I can compute whatever I want")
 //!
 //! if __name__ == "__main__":
@@ -56,7 +56,7 @@
 //!
 //! ## Generated subtitle
 //!   This comes from the script.py file
-//!   Since I'm at in a scripting language,
+//!   Since I'm in a scripting language,
 //!   I can compute whatever I want
 //!
 //!
@@ -68,7 +68,7 @@
 //! Also the working directory is the directory where the pattern was found (not root).
 //! The command invoked must take no inputs (stdin is not used), but a list of command lines arguments and must produce output in stdout, stderr is ignored.
 //!
-//! As of July 2023 runs on Windows platforms via using the `cmd` shell!
+//! As of July 2023, mdbook-cmdrun runs on Windows platforms using the `cmd` shell!
 //!
 //! # Examples
 //!
