@@ -121,5 +121,9 @@ At the moment of writing, there are examples using:
 - Rust
 
 
+## Contributors
+
+I would like to thank @exsjabe for his valuable help with integrating Windows support and inline cmdrun calls.
+
 Current version: 0.5.0  
 License: MIT
