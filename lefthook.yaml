@@ -1,0 +1,30 @@
+---
+skip_output:
+  - meta
+  - success
+commit-msg:
+  parallel: true
+  commands:
+    typos:
+      skip:
+        - merge
+        - rebase
+      tags: check commit typos
+      run:  cat "{1}" | head -n 1 | typos -
+pre-commit:
+  parallel: false
+  commands:
+    check:
+      tags: check
+      run: nix flake check
+    formatter-nix:
+      tags: formatter
+      glob: "*.nix"
+      run: nix fmt
+      stage_fixed: true
+pre-push:
+  parallel: true
+  commands:
+    check:
+      tags: nix checks
+      run: nix flake check
