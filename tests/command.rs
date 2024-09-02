@@ -44,6 +44,16 @@ cfg_if! {
         add_test!(quote3, "echo ''", "\n", false);
         add_test!(quote4, "echo '\\'", "\\\n", false);
 
+        #[test]
+        fn fail_inline() {
+            assert!(CmdRun::run_cmdrun("-1 exit 1".to_string(), ".", true).is_err())
+        }
+
+        #[test]
+        fn fail() {
+            assert!(CmdRun::run_cmdrun("-1 exit 1".to_string(), ".", false).is_err())
+        }
+
         add_test!(
             mixed_inline1,
             "yes 42 | head -n 4 | sed -z 's/\\n/  \\n/g'",
