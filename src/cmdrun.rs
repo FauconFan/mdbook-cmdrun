@@ -159,11 +159,33 @@ impl CmdRun {
 
     // This method is public for unit tests
     pub fn run_cmdrun(command: String, working_dir: &str, inline: bool) -> Result<String> {
+        let (command, correct_exit_code): (String, Option<i32>) = if let Some(first_word) = command.split_whitespace().next() {
+            if first_word.starts_with('-') {
+                let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("","0"));
+                (command.split_whitespace().skip(1).collect::<String>(), Some(exit_code.parse()?))
+            } else {
+                (command, None)
+            }
+        } else {
+            (command, None)
+        };
+
         let output = Command::new(LAUNCH_SHELL_COMMAND)
             .args([LAUNCH_SHELL_FLAG, &command])
             .current_dir(working_dir)
             .output()
             .with_context(|| "Fail to run shell")?;
+
+        match (output.status.code(), correct_exit_code) {
+            (None, _) => return Err(anyhow::Error::msg(format!("'{command}' was ended before completing."))),
+            (Some(code), Some(correct_code)) => if code != correct_code {
+                return Err(
+                    anyhow::Error::msg(format!("'{command}' returned exit code {code} instead of {correct_code}."))
+                    .context(String::from_utf8_lossy(&output.stderr).to_string())
+                )
+            },
+            (Some(code), None) => ()
+        }
 
         let stdout = Self::format_whitespace(String::from_utf8_lossy(&output.stdout), inline);
 
