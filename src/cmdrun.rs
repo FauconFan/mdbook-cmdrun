@@ -162,7 +162,10 @@ impl CmdRun {
         let (command, correct_exit_code): (String, Option<i32>) = if let Some(first_word) = command.split_whitespace().next() {
             if first_word.starts_with('-') {
                 let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("","0"));
-                (command.split_whitespace().skip(1).collect::<String>(), Some(exit_code.parse()?))
+                (
+                    command.split_whitespace().skip(1).collect::<Vec<&str>>().join(" "),
+                    Some(exit_code.parse()?)
+                )
             } else {
                 (command, None)
             }

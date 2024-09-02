@@ -44,14 +44,19 @@ cfg_if! {
         add_test!(quote3, "echo ''", "\n", false);
         add_test!(quote4, "echo '\\'", "\\\n", false);
 
+        // the inline flag only affects the output and here I'm just checking exit codes
+        // so I only test without the inline flag
+        add_test!(match_fail_exit_code, "-1 exit 1", "", false);
+        add_test!(match_pass_exit_code, "-0 exit 0", "", false);
+
         #[test]
-        fn fail_inline() {
-            assert!(CmdRun::run_cmdrun("-1 exit 1".to_string(), ".", true).is_err())
+        fn exit_code_mismatch() {
+            assert!(CmdRun::run_cmdrun("-0 exit 1".to_string(), ".", false).is_err())
         }
 
         #[test]
-        fn fail() {
-            assert!(CmdRun::run_cmdrun("-1 exit 1".to_string(), ".", false).is_err())
+        fn bad_exit_code_spec() {
+            assert!(CmdRun::run_cmdrun("-O exit 0".to_string(), ".", false).is_err())
         }
 
         add_test!(
