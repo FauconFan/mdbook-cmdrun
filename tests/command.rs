@@ -48,6 +48,7 @@ cfg_if! {
         // so I only test without the inline flag
         add_test!(match_fail_exit_code, "-1 exit 1", "", false);
         add_test!(match_pass_exit_code, "-0 exit 0", "", false);
+        add_test!(pass_without_exit_code_spec, "exit 1", "", false);
 
         #[test]
         fn exit_code_mismatch() {
