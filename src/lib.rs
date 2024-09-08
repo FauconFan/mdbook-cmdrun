@@ -11,6 +11,13 @@
 //! [preprocessor.cmdrun]
 //! ```
 //!
+//! > :warning: This preprocessor presents a security risk, as arbitrary commands can be run. Be careful with the commands you run.
+//! > To list all the commands that will be run within an mdbook, you can run the following command:
+//! > ```sh
+//! > grep -r '<!-- cmdrun' . | sed 's/.*<!-- cmdrun \(.*\) -->.*/\1/'
+//! > ``````
+//!
+//!
 //! # How to
 //!
 //! Let's say we have these two files:
