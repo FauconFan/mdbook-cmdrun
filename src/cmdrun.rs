@@ -159,13 +159,53 @@ impl CmdRun {
 
     // This method is public for unit tests
     pub fn run_cmdrun(command: String, working_dir: &str, inline: bool) -> Result<String> {
-        let (command, correct_exit_code): (String, Option<i32>) = if let Some(first_word) = command.split_whitespace().next() {
+        let (command, correct_exit_code): (String, Option<i32>) = if let Some(first_word) =
+            command.split_whitespace().next()
+        {
             if first_word.starts_with('-') {
-                let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("","0"));
-                (
-                    command.split_whitespace().skip(1).collect::<Vec<&str>>().join(" "),
-                    Some(exit_code.parse()?)
-                )
+                if first_word.starts_with("--") {
+                    // double-tick long form
+                    match first_word {
+                        "--strict" => (
+                            command
+                                .split_whitespace()
+                                .skip(1)
+                                .collect::<Vec<&str>>()
+                                .join(" "),
+                            Some(0),
+                        ),
+                        "--expect-return-code" => {
+                            if let Some(second_word) = command.split_whitespace().skip(1).next() {
+                                (
+                                    command
+                                        .split_whitespace()
+                                        .skip(2)
+                                        .collect::<Vec<&str>>()
+                                        .join(" "),
+                                    Some(second_word.parse()?),
+                                )
+                            } else {
+                                // no second word after return code, print error
+                                return Ok(format!("**cmdrun error**: No return code after '--expect-return-code' for command {command}."));
+                            }
+                        }
+                        some_other_word => {
+                            // unrecognized flag, print error
+                            return Ok(format!("**cmdrun error**: Unrecognized cmdrun flag {some_other_word} in 'cmdrun {command}'"));
+                        }
+                    }
+                } else {
+                    // single-tick short form
+                    let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("", "0"));
+                    (
+                        command
+                            .split_whitespace()
+                            .skip(1)
+                            .collect::<Vec<&str>>()
+                            .join(" "),
+                        Some(exit_code.parse()?),
+                    )
+                }
             } else {
                 (command, None)
             }
@@ -179,25 +219,25 @@ impl CmdRun {
             .output()
             .with_context(|| "Fail to run shell")?;
 
-        match (output.status.code(), correct_exit_code) {
-            (None, _) => return Err(anyhow::Error::msg(format!("'{command}' was ended before completing."))),
-            (Some(code), Some(correct_code)) => if code != correct_code {
-                return Err(
-                    anyhow::Error::msg(format!("'{command}' returned exit code {code} instead of {correct_code}."))
-                    .context(String::from_utf8_lossy(&output.stderr).to_string())
-                )
-            },
-            (Some(code), None) => ()
-        }
-
         let stdout = Self::format_whitespace(String::from_utf8_lossy(&output.stdout), inline);
-
-        // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        // eprintln!("command: {}", command);
-        // eprintln!("stdout: {:?}", stdout);
-        // eprintln!("stderr: {:?}", stderr);
-
-        Ok(stdout)
+        match (output.status.code(), correct_exit_code) {
+            (None, _) => Ok(format!("'{command}' was ended before completing.")),
+            (Some(code), Some(correct_code)) => {
+                if code != correct_code {
+                    Ok(
+                    format!(
+                        "**cmdrun error**: '{command}' returned exit code {code} instead of {correct_code}.\n{0}\n{1}", String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr))
+                )
+                } else {
+                    Ok(stdout)
+                }
+            }
+            (Some(_code), None) => {
+                // no correct code specified, program exited with some code _code
+                // could put default check requiring code to be zero here but
+                // that would break current behavior
+                Ok(stdout)
+            }
+        }
     }
 }
