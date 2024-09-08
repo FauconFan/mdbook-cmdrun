@@ -2,7 +2,7 @@ use cfg_if::cfg_if;
 use std::fs;
 
 cfg_if! {
-    if #[cfg(any(target_family = "unix", target_family = "other"))] {
+    if #[cfg(target_family = "unix")] {
         const INPUT_FILE: &str = "input.md";
         const OUTPUT_FILE: &str = "output.md";
     } else if  #[cfg(target_family = "windows")]{

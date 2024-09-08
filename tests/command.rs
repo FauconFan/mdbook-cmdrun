@@ -13,7 +13,7 @@ macro_rules! add_test {
 }
 
 cfg_if! {
-    if #[cfg(any(target_family = "unix", target_family = "other"))] {
+    if #[cfg(target_family = "unix")] {
         add_test!(simple_inline1, "echo oui", "oui", true);
         add_test!(simple_inline2, "echo oui non", "oui non", true);
         add_test!(simple_inline3, "echo oui       non", "oui non", true);

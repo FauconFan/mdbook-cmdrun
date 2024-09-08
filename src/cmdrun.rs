@@ -28,7 +28,7 @@ lazy_static! {
 }
 
 cfg_if! {
-    if #[cfg(any(target_family = "unix", target_family = "other"))] {
+    if #[cfg(target_family = "unix")] {
         const LAUNCH_SHELL_COMMAND: &str = "sh";
         const LAUNCH_SHELL_FLAG: &str = "-c";
     } else if #[cfg(target_family = "windows")] {
@@ -148,7 +148,7 @@ impl CmdRun {
         return res;
     }
 
-    #[cfg(any(target_family = "unix", target_family = "other"))]
+    #[cfg(target_family = "unix")]
     fn format_whitespace(str: Cow<'_, str>, inline: bool) -> String {
         match inline {
             // Wh;n running inline it is undeseriable to have trailing whitespace
