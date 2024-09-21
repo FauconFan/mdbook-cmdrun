@@ -9,13 +9,26 @@ use std::process;
 use mdbook_cmdrun::CmdRun;
 
 fn main() {
-    let matches = make_app().get_matches();
+    let matches = make_app().try_get_matches();
 
-    if let Some(sub_args) = matches.subcommand_matches("supports") {
-        handle_supports(sub_args);
-    } else if let Err(e) = handle_preprocessing() {
-        eprintln!("{e}");
-        process::exit(1);
+    match matches {
+        Ok(matches) => {
+            if let Some(sub_args) = matches.subcommand_matches("supports") {
+                handle_supports(sub_args);
+            } else if let Some(sub_args) = matches.subcommand_matches("cmdrun") {
+                let text : String = sub_args
+                    .try_get_many::<String>("text")
+                    .expect("able to parse a command and not get Err")
+                    .expect("able to parse a command and not get None")
+                    .map(|s| s.as_str())
+                    .collect();
+                println!("{}", CmdRun::run_cmdrun(text, ".", false).unwrap());
+            } else if let Err(e) = handle_preprocessing() {
+                eprintln!("{e}");
+                process::exit(1);
+            }
+        },
+        Err(e) => e.exit()
     }
 }
 
@@ -26,6 +39,9 @@ fn make_app() -> Command {
             Command::new("supports")
                 .arg(Arg::new("renderer").required(true))
                 .about("Check whether a renderer is supported by this preprocessor"),
+        ).subcommand(
+            Command::new("cmdrun")
+                .arg(Arg::new("text").num_args(1..).trailing_var_arg(true))
         )
 }
 

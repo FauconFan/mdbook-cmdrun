@@ -16,6 +16,8 @@ use mdbook::book::Book;
 use mdbook::book::Chapter;
 use mdbook::preprocess::{Preprocessor, PreprocessorContext};
 
+use clap::value_parser;
+
 use crate::utils::map_chapter;
 
 pub struct CmdRun;
@@ -159,20 +161,88 @@ impl CmdRun {
 
     // This method is public for unit tests
     pub fn run_cmdrun(command: String, working_dir: &str, inline: bool) -> Result<String> {
+        let parser = make_cmdrun_parser().no_binary_name(true);
+        let matches = parser.try_get_matches_from(
+            shellwords::split(&command)?
+            .into_iter()
+            .map(|w| if w.contains(char::is_whitespace) {
+                format!("'{w}'")
+            } else {
+                w
+            })
+        )?;
+
+        let cmd : String = matches
+            .try_get_many::<String>("cmd")
+            .expect("able to parse a command and not get Err")
+            .expect("able to parse a command and not get None")
+            .map(|s| s.as_str())
+            .collect::<Vec<&str>>()
+            .join(" ");
+        let correct_exit_code = if matches.get_flag("strict") {
+            Some(&0)
+        } else {
+            matches.try_get_one("expect-return-code")?
+        };
+
+        //println!("{}", cmd);
         let output = Command::new(LAUNCH_SHELL_COMMAND)
-            .args([LAUNCH_SHELL_FLAG, &command])
+            .arg(LAUNCH_SHELL_FLAG)
+            .arg(cmd.clone())
             .current_dir(working_dir)
             .output()
             .with_context(|| "Fail to run shell")?;
 
         let stdout = Self::format_whitespace(String::from_utf8_lossy(&output.stdout), inline);
-
-        // let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-
-        // eprintln!("command: {}", command);
-        // eprintln!("stdout: {:?}", stdout);
-        // eprintln!("stderr: {:?}", stderr);
-
-        Ok(stdout)
+        match (output.status.code(), correct_exit_code) {
+            (None, _) => Ok(format!("'{cmd}' was ended before completing.")),
+            (Some(code), Some(correct_code)) => {
+                if code != *correct_code {
+                    Ok(
+                    format!(
+                        "**cmdrun error**: '{cmd}' returned exit code {code} instead of {correct_code}.\n{0}\n{1}", stdout, String::from_utf8_lossy(&output.stderr))
+                )
+                } else {
+                    Ok(stdout)
+                }
+            },
+            (Some(_code), None) => Ok(stdout)
+        }
     }
+}
+
+
+fn make_cmdrun_parser() -> clap::Command {
+    clap::Command::new("cmdrun")
+        .about("test run a command before putting it in a book")
+        .arg(
+            clap::Arg::new("expect-return-code")
+            .help("require the specific return code N")
+            .long("expect-return-code")
+            .conflicts_with("strict")
+//            .conflicts_with("exit-code-short")
+            .num_args(1)
+            .value_name("N")
+            .value_parser(value_parser!(i32))
+        ).arg(
+            clap::Arg::new("strict")
+            .help("require command to return the successful exit code 0")
+            .long("strict")
+            .conflicts_with("expect-return-code")
+//            .conflicts_with("exit-code-short")
+            .action(clap::ArgAction::SetTrue)
+//        ).arg(
+//            Arg::new("exit-code-short")
+//            .help("require the specific exit code N")
+//            .conflicts_with("expect-return-code")
+//            .conflicts_with("strict")
+//            .value_name("-N")
+//            .allow_negative_numbers(true)
+//            .value_parser(..=0)
+        ).arg(
+            clap::Arg::new("cmd")
+            .help("command whose output will be injected into book")
+            .num_args(1..)
+            .trailing_var_arg(true)
+        )
 }
