@@ -58,6 +58,18 @@ cfg_if! {
                   "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
         add_test!(long_exit_code_mismatch2, "--strict exit 1",
                   "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
+        add_test!(not_a_cmdrun_flag, "--flag-dne echo hello world",
+                  "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
+                  false);
+        add_test!(missing_arg_no_cmd, "--expect-return-code",
+                  "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code'",
+                  false);
+        add_test!(missing_arg_no_code, "--expect-return-code echo hello world",
+                  "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code echo hello world'",
+                  false);
+        add_test!(bad_short_form_exit_code, "-NaN echo hello world",
+                  "**cmdrun error**: Unable to interpret short-form exit code -NaN as a number in 'cmdrun -NaN echo hello world'",
+                  false);
 
         add_test!(
             mixed_inline1,
