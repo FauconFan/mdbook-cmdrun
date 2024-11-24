@@ -156,7 +156,7 @@ impl CmdRun {
             false => str.to_string(),
         }
     }
-    
+
     fn cmdrun_error_message(message: &str, command: &str) -> String {
         format!("**cmdrun error**: {} in 'cmdrun {}'", message, command)
     }
@@ -167,81 +167,83 @@ impl CmdRun {
         // exit status checking flags.
         // Some experimentation using clap was done; however, splitting and then re-escaping
         // the shellwords was found to be a large barrier to using this other tool.
-        let (command, correct_exit_code): (String, Option<i32>) = if let Some(first_word) =
-            command.split_whitespace().next()
-        {
-            if first_word.starts_with('-') {
-                if first_word.starts_with("--") {
-                    // double-tick long form
-                    match first_word {
-                        "--strict" => (
-                            command
-                                .split_whitespace()
-                                .skip(1)
-                                .collect::<Vec<&str>>()
-                                .join(" "),
-                            Some(0),
-                        ),
-                        "--expect-return-code" => {
-                            if let Some(second_word) = command.split_whitespace().skip(1).next() {
-                                match second_word.parse::<i32>() {
-                                    Ok(return_code) => {
-                                        (
-                                            command
-                                                .split_whitespace()
-                                                .skip(2)
-                                                .collect::<Vec<&str>>()
-                                                .join(" "),
-                                            Some(return_code)
-                                        )
-                                    }
-                                    Err(_) => {
-                                        return Ok(Self::cmdrun_error_message(
-                                                "No return code after '--expect-return-code'",
-                                                &command));
-                                    }
-                                }
-                            } else {
-                                // no second word after return code, print error
-                                return Ok(Self::cmdrun_error_message(
-                                        "No return code after '--expect-return-code'",
-                                        &command));
-                            }
-                        }
-                        some_other_word => {
-                            // unrecognized flag, print error
-                            return Ok(Self::cmdrun_error_message(
-                                    &format!("Unrecognized cmdrun flag {}", some_other_word),
-                                    &command));
-                        }
-                    }
-                } else {
-                    // single-tick short form
-                    let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("", "0"));
-                    match exit_code.parse::<i32>() {
-                        Ok(return_code) => {
-                            (
+        let (command, correct_exit_code): (String, Option<i32>) =
+            if let Some(first_word) = command.split_whitespace().next() {
+                if first_word.starts_with('-') {
+                    if first_word.starts_with("--") {
+                        // double-tick long form
+                        match first_word {
+                            "--strict" => (
                                 command
                                     .split_whitespace()
                                     .skip(1)
                                     .collect::<Vec<&str>>()
                                     .join(" "),
-                                Some(return_code)
-                            )
+                                Some(0),
+                            ),
+                            "--expect-return-code" => {
+                                if let Some(second_word) = command.split_whitespace().nth(1) {
+                                    match second_word.parse::<i32>() {
+                                        Ok(return_code) => (
+                                            command
+                                                .split_whitespace()
+                                                .skip(2)
+                                                .collect::<Vec<&str>>()
+                                                .join(" "),
+                                            Some(return_code),
+                                        ),
+                                        Err(_) => {
+                                            return Ok(Self::cmdrun_error_message(
+                                                "No return code after '--expect-return-code'",
+                                                &command,
+                                            ));
+                                        }
+                                    }
+                                } else {
+                                    // no second word after return code, print error
+                                    return Ok(Self::cmdrun_error_message(
+                                        "No return code after '--expect-return-code'",
+                                        &command,
+                                    ));
+                                }
+                            }
+                            some_other_word => {
+                                // unrecognized flag, print error
+                                return Ok(Self::cmdrun_error_message(
+                                    &format!("Unrecognized cmdrun flag {}", some_other_word),
+                                    &command,
+                                ));
+                            }
                         }
-                        Err(_) => {
-                            return Ok(Self::cmdrun_error_message(
-                                    &format!("Unable to interpret short-form exit code {} as a number", first_word),
-                                    &command));
+                    } else {
+                        // single-tick short form
+                        let (_, exit_code) = first_word.rsplit_once('-').unwrap_or(("", "0"));
+                        match exit_code.parse::<i32>() {
+                            Ok(return_code) => (
+                                command
+                                    .split_whitespace()
+                                    .skip(1)
+                                    .collect::<Vec<&str>>()
+                                    .join(" "),
+                                Some(return_code),
+                            ),
+                            Err(_) => {
+                                return Ok(Self::cmdrun_error_message(
+                                    &format!(
+                                        "Unable to interpret short-form exit code {} as a number",
+                                        first_word
+                                    ),
+                                    &command,
+                                ));
+                            }
                         }
                     }
+                } else {
+                    (command, None)
                 }
             } else {
                 (command, None)
-            }
-        } else {
-            (command, None)
-        };
+            };
 
         let output = Command::new(LAUNCH_SHELL_COMMAND)
             .args([LAUNCH_SHELL_FLAG, &command])
@@ -251,7 +253,10 @@ impl CmdRun {
 
         let stdout = Self::format_whitespace(String::from_utf8_lossy(&output.stdout), inline);
         match (output.status.code(), correct_exit_code) {
-            (None, _) => Ok(Self::cmdrun_error_message("Command was ended before completing", &command)),
+            (None, _) => Ok(Self::cmdrun_error_message(
+                "Command was ended before completing",
+                &command,
+            )),
             (Some(code), Some(correct_code)) => {
                 if code != correct_code {
                     Ok(format!(

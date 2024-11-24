@@ -98,21 +98,49 @@ cfg_if! {
 add_test!(pass_without_exit_code_spec, "exit 1", "", false);
 add_test!(short_match_fail_exit_code, "-1 exit 1", "", false);
 add_test!(short_match_pass_exit_code, "-0 exit 0", "", false);
-add_test!(short_exit_code_mismatch, "-0 exit 1",
-          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-add_test!(long_match_fail_exit_code, "--expect-return-code 1 exit 1", "", false);
-add_test!(long_match_pass_exit_code1, "--expect-return-code 0 exit 0", "", false);
+add_test!(
+    short_exit_code_mismatch,
+    "-0 exit 1",
+    "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n",
+    false
+);
+add_test!(
+    long_match_fail_exit_code,
+    "--expect-return-code 1 exit 1",
+    "",
+    false
+);
+add_test!(
+    long_match_pass_exit_code1,
+    "--expect-return-code 0 exit 0",
+    "",
+    false
+);
 add_test!(long_match_pass_exit_code2, "--strict exit 0", "", false);
-add_test!(long_exit_code_mismatch1, "--expect-return-code 0 exit 1",
-          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-add_test!(long_exit_code_mismatch2, "--strict exit 1",
-          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-add_test!(not_a_cmdrun_flag, "--flag-dne echo hello world",
-          "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
-          false);
-add_test!(shortform_typo, "--0 echo hello world",
-          "**cmdrun error**: Unrecognized cmdrun flag --0 in 'cmdrun --0 echo hello world'",
-          false);
+add_test!(
+    long_exit_code_mismatch1,
+    "--expect-return-code 0 exit 1",
+    "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n",
+    false
+);
+add_test!(
+    long_exit_code_mismatch2,
+    "--strict exit 1",
+    "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n",
+    false
+);
+add_test!(
+    not_a_cmdrun_flag,
+    "--flag-dne echo hello world",
+    "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
+    false
+);
+add_test!(
+    shortform_typo,
+    "--0 echo hello world",
+    "**cmdrun error**: Unrecognized cmdrun flag --0 in 'cmdrun --0 echo hello world'",
+    false
+);
 add_test!(missing_arg_no_cmd, "--expect-return-code",
           "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code'",
           false);
