@@ -61,6 +61,9 @@ cfg_if! {
         add_test!(not_a_cmdrun_flag, "--flag-dne echo hello world",
                   "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
                   false);
+        add_test!(shortform_typo, "--0 echo hello world",
+                  "**cmdrun error**: Unrecognized cmdrun flag --0 in 'cmdrun --0 echo hello world'",
+                  false);
         add_test!(missing_arg_no_cmd, "--expect-return-code",
                   "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code'",
                   false);
