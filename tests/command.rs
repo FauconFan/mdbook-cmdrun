@@ -44,36 +44,6 @@ cfg_if! {
         add_test!(quote3, "echo ''", "\n", false);
         add_test!(quote4, "echo '\\'", "\\\n", false);
 
-        // the inline flag only affects the output and here I'm just checking exit codes
-        // so I only test without the inline flag
-        add_test!(pass_without_exit_code_spec, "exit 1", "", false);
-        add_test!(short_match_fail_exit_code, "-1 exit 1", "", false);
-        add_test!(short_match_pass_exit_code, "-0 exit 0", "", false);
-        add_test!(short_exit_code_mismatch, "-0 exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-        add_test!(long_match_fail_exit_code, "--expect-return-code 1 exit 1", "", false);
-        add_test!(long_match_pass_exit_code1, "--expect-return-code 0 exit 0", "", false);
-        add_test!(long_match_pass_exit_code2, "--strict exit 0", "", false);
-        add_test!(long_exit_code_mismatch1, "--expect-return-code 0 exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-        add_test!(long_exit_code_mismatch2, "--strict exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-        add_test!(not_a_cmdrun_flag, "--flag-dne echo hello world",
-                  "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
-                  false);
-        add_test!(shortform_typo, "--0 echo hello world",
-                  "**cmdrun error**: Unrecognized cmdrun flag --0 in 'cmdrun --0 echo hello world'",
-                  false);
-        add_test!(missing_arg_no_cmd, "--expect-return-code",
-                  "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code'",
-                  false);
-        add_test!(missing_arg_no_code, "--expect-return-code echo hello world",
-                  "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code echo hello world'",
-                  false);
-        add_test!(bad_short_form_exit_code, "-NaN echo hello world",
-                  "**cmdrun error**: Unable to interpret short-form exit code -NaN as a number in 'cmdrun -NaN echo hello world'",
-                  false);
-
         add_test!(
             mixed_inline1,
             "yes 42 | head -n 4 | sed -z 's/\\n/  \\n/g'",
@@ -118,20 +88,37 @@ cfg_if! {
             "42  \r\n42  \r\n42  \r\n42  \r\n", false
             );
 
-        // the inline flag only affects the output and here I'm just checking exit codes
-        // so I only test without the inline flag
-        add_test!(pass_without_exit_code_spec, "exit 1", "", false);
-        add_test!(short_match_fail_exit_code, "-1 exit 1", "", false);
-        add_test!(short_match_pass_exit_code, "-0 exit 0", "", false);
-        add_test!(short_exit_code_mismatch, "-0 exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-        add_test!(long_match_fail_exit_code, "--expect-return-code 1 exit 1", "", false);
-        add_test!(long_match_pass_exit_code1, "--expect-return-code 0 exit 0", "", false);
-        add_test!(long_match_pass_exit_code2, "--strict exit 0", "", false);
-        add_test!(long_exit_code_mismatch1, "--expect-return-code 0 exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-        add_test!(long_exit_code_mismatch2, "--strict exit 1",
-                  "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
-
     }
 }
+
+// the inline flag only affects the output and here I'm just checking exit codes
+// so I only test without the inline flag
+// I am also not testing more complicated input/output strings and so it is
+// the same between Windoze and Unix
+add_test!(pass_without_exit_code_spec, "exit 1", "", false);
+add_test!(short_match_fail_exit_code, "-1 exit 1", "", false);
+add_test!(short_match_pass_exit_code, "-0 exit 0", "", false);
+add_test!(short_exit_code_mismatch, "-0 exit 1",
+          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
+add_test!(long_match_fail_exit_code, "--expect-return-code 1 exit 1", "", false);
+add_test!(long_match_pass_exit_code1, "--expect-return-code 0 exit 0", "", false);
+add_test!(long_match_pass_exit_code2, "--strict exit 0", "", false);
+add_test!(long_exit_code_mismatch1, "--expect-return-code 0 exit 1",
+          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
+add_test!(long_exit_code_mismatch2, "--strict exit 1",
+          "**cmdrun error**: 'exit 1' returned exit code 1 instead of 0.\n\n", false);
+add_test!(not_a_cmdrun_flag, "--flag-dne echo hello world",
+          "**cmdrun error**: Unrecognized cmdrun flag --flag-dne in 'cmdrun --flag-dne echo hello world'",
+          false);
+add_test!(shortform_typo, "--0 echo hello world",
+          "**cmdrun error**: Unrecognized cmdrun flag --0 in 'cmdrun --0 echo hello world'",
+          false);
+add_test!(missing_arg_no_cmd, "--expect-return-code",
+          "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code'",
+          false);
+add_test!(missing_arg_no_code, "--expect-return-code echo hello world",
+          "**cmdrun error**: No return code after '--expect-return-code' in 'cmdrun --expect-return-code echo hello world'",
+          false);
+add_test!(bad_short_form_exit_code, "-NaN echo hello world",
+          "**cmdrun error**: Unable to interpret short-form exit code -NaN as a number in 'cmdrun -NaN echo hello world'",
+          false);
