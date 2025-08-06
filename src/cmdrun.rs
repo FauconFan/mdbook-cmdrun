@@ -172,7 +172,13 @@ impl CmdRun {
         // eprintln!("command: {}", command);
         // eprintln!("stdout: {:?}", stdout);
         // eprintln!("stderr: {:?}", stderr);
-
-        Ok(stdout)
+        match output.status.code() {
+            None => Ok(format!("**cmdrun error**: '{command}' was ended before completing.")),
+            Some(0) => Ok(stdout),
+            Some(code) => {
+                Ok(format!("**cmdrun error**: The following command returned a nonzero exit code ({0}):\n\n $ {1}\n\nIf you don't consider it a failure, consider making it return 0 instead.\nFor example, by appending ` || true`.\n\nstdout (what would be put into book):\n```\n{2}\n```\nstderr (helpful for debugging):\n```\n{3}\n```",
+                code, command, String::from_utf8_lossy(&output.stdout), String::from_utf8_lossy(&output.stderr)))
+            }
+        }
     }
 }
