@@ -7,11 +7,11 @@
 <!-- cmdrun python3 generate_table.py -->
 
 ```rust
-<!-- cmdrun cat program.rs -->
+<!-- cmdrun cat program.rs || true -->
 ```
 
 ```diff
-<!-- cmdrun diff a.rs b.rs -->
+<!-- cmdrun diff a.rs b.rs || true -->
 ```
 
 ```console

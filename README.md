@@ -90,12 +90,15 @@ The following is valid:
 
 <!-- cmdrun python3 generate_table.py -->
 
+Commands that are allowed to exit with a non-zero status should be appended with `|| true`
+so that cmdrun knows that it is intentional.
+
 ```rust
-<!-- cmdrun cat program.rs -->
+<!-- cmdrun cat program.rs || true -->
 ```
 
 ```diff
-<!-- cmdrun diff a.rs b.rs -->
+<!-- cmdrun diff a.rs b.rs || true -->
 ```
 
 ```console
