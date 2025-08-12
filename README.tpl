@@ -7,7 +7,9 @@
 
 ## Contributors
 
-I would like to thank [@exsjabe](https://github.com/exsjabe) for his valuable help with integrating Windows support and inline cmdrun calls.
+I would like to thank some contributors for their valuable help in improving this crate:
+- @exsjabe: Integrating Windows and inline cmdrun calls.  
+- [@tomeichlersmith](https://github.com/tomeichlersmith): Return code expectations and cmdrun argument parsing.
 
 Current version: {{version}}  
 License: {{license}}
