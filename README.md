@@ -118,15 +118,6 @@ Juicy Apples | 1.99 | *7*
 Bananas | *1.89* | 5234
 ````
 
-Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
-At the moment of writing, there are examples using:
-- Shell
-- Bash script
-- Batch script
-- Python3
-- Node
-- Rust
-
 Often, it is helpful to ensure that the commands being run successfully complete
 or at least return the expected exit code. This check is supported through an
 optional flag after `cmdrun` but before your command.
@@ -156,9 +147,18 @@ hello world
 ```
 ````
 The available flags for specifying the exit code are
-- `-N` where `N` is the integer exit code that the command should return
-- `--strict` requires the command to return 0
-- `--expect-return-code N` requires the command to return code `N`
+- `-N` where `N` is the integer exit code that the command should return.
+- `--strict` requires the command to return 0.
+- `--expect-return-code N` requires the command to return code `N`.
+
+Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
+At the moment of writing, there are examples using:
+- Shell
+- Bash script
+- Batch script
+- Python3
+- Node
+- Rust
 
 
 ## Contributors

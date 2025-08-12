@@ -113,6 +113,39 @@
 //! Bananas | *1.89* | 5234
 //! ````
 //!
+//! Often, it is helpful to ensure that the commands being run successfully complete
+//! or at least return the expected exit code. This check is supported through an
+//! optional flag after `cmdrun` but before your command.
+//! Any errors encountered by cmdrun are reported in the rendered mdbook.
+//! For example, the following source
+//!
+//! ````markdown
+//! <!-- cmdrun -0 echo hello world -->
+//! ```diff
+//! <!-- cmdrun -0 diff a.rs b.rs -->
+//! ```
+//! ```diff
+//! <!-- cmdrun -1 diff a.rs b.rs -->
+//! ```
+//! ````
+//! gets rendered as
+//! ````markdown
+//! hello world
+//! ```diff
+//! **cmdrun error**: 'diff a.rs b.rs' returned exit code 1 instead of 0.
+//! ```
+//! ```diff
+//! 2c2
+//! <    println!("I'm from `a.rs`");
+//! ---
+//! >    println!("I'm from `b.rs`");
+//! ```
+//! ````
+//! The available flags for specifying the exit code are
+//! - `-N` where `N` is the integer exit code that the command should return.
+//! - `--strict` requires the command to return 0.
+//! - `--expect-return-code N` requires the command to return code `N`.
+//!
 //! Some more examples are implemented, and are used as regression tests. You can find them [here](https://github.com/FauconFan/mdbook-cmdrun/tree/master/tests/regression/).
 //! At the moment of writing, there are examples using:
 //! - Shell
