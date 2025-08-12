@@ -1,6 +1,7 @@
 use cfg_if::cfg_if;
 use mdbook_cmdrun::CmdRun;
 
+// Tests might differ on windows and unix because newlines, spaces and escaping work differently
 cfg_if! {
     if #[cfg(target_family = "unix")] {
         const NL: &str = "\n";
@@ -20,57 +21,50 @@ macro_rules! add_test {
     };
 }
 
-add_test!(simple_inline1, "echo oui", "oui", true);
-add_test!(simple_inline2, "echo oui non", "oui non", true);
-add_test!(simple_inline3, "echo oui       non", "oui non", true);
-add_test!(
-    simple_inline4,
-    "echo oui; echo non",
-    &format!("oui{NL}non"),
-    true
-);
-add_test!(simple_inline5, "echo \"hello world\"", "hello world", true);
-
 add_test!(simple1, "echo oui", &format!("oui{NL}"), false);
-add_test!(simple2, "echo oui non", &format!("oui non{NL}"), false);
-add_test!(
-    simple3,
-    "echo oui       non",
-    &format!("oui non{NL}"),
-    false
-);
-add_test!(
-    simple4,
-    "echo oui; echo non",
-    &format!("oui{NL}non{NL}"),
-    false
-);
-add_test!(
-    simple5,
-    "echo \"hello world\"",
-    &format!("hello world{NL}"),
-    false
-);
+add_test!(simple_inline1, "echo oui", "oui", true);
 
-add_test!(pipe_inline1, "cat LICENSE | head -n 1", "MIT License", true);
-add_test!(
-    pipe_inline2,
-    "yes 42 | head -n 3",
-    &format!("42{NL}42{NL}42"),
-    true
-);
-add_test!(
-    pipe_inline3,
-    "echo \" coucou   \" | tr -d ' '",
-    "coucou",
-    true
-);
+add_test!(simple2, "echo oui non", &format!("oui non{NL}"), false);
+add_test!(simple_inline2, "echo oui non", "oui non", true);
+
+cfg_if! {
+    if #[cfg(target_family = "unix")] {
+        add_test!(simple3, "echo oui       non", &format!("oui non{NL}"), false);
+        add_test!(simple_inline3, "echo oui       non", "oui non", true);
+    } else if #[cfg(target_family = "windows")] {
+        add_test!(simple3, "echo oui       non", &format!("oui       non{NL}"), false);
+        add_test!(simple_inline3, "echo oui       non", "oui       non", true);
+    }
+}
+
+cfg_if! {
+    if #[cfg(target_family = "unix")] {
+        add_test!(simple4, "echo oui; echo non", &format!("oui{NL}non{NL}"), false);
+        add_test!(simple_inline4, "echo oui; echo non", "oui\nnon", true);
+    } else if #[cfg(target_family = "windows")] {
+        // on windows, ; is not a command separator, so it will be passed to the command
+        add_test!(simple4, "echo oui; echo non", &format!("oui; echo non{NL}"), false);
+        add_test!(simple_inline4, "echo oui; echo non", "oui; echo non", true);
+    }
+}
+
+cfg_if! {
+    if #[cfg(target_family = "unix")] {
+        add_test!(simple5, "echo \"hello world\"", &format!("hello world{NL}"), false);
+        add_test!(simple_inline5, "echo \"hello world\"", "hello world", true);
+    } else if #[cfg(target_family = "windows")] {
+        add_test!(simple5, "echo hello world", &format!("hello world{NL}"), false);
+        add_test!(simple_inline5, "echo hello world", "hello world", true);
+    }
+}
+
 add_test!(
     pipe1,
     "cat LICENSE | head -n 1",
     &format!("MIT License{NL}"),
     false
 );
+add_test!(pipe_inline1, "cat LICENSE | head -n 1", "MIT License", true);
 add_test!(
     pipe2,
     "yes 42 | head -n 3",
@@ -78,21 +72,55 @@ add_test!(
     false
 );
 add_test!(
-    pipe3,
-    "echo \" coucou   \" | tr -d ' '",
-    &format!("coucou{NL}"),
-    false
+    pipe_inline2,
+    "yes 42 | head -n 3",
+    &format!("42{NL}42{NL}42"),
+    true
 );
 
-add_test!(quote_inline1, "echo \"\"", "", true);
-add_test!(quote_inline2, "echo \"\\\"\"", "\"", true);
-add_test!(quote_inline3, "echo ''", "", true);
-add_test!(quote_inline4, "echo '\\'", "\\", true);
+cfg_if! {
+    if #[cfg(target_family = "unix")] {
+        add_test!(
+            pipe3,
+            "echo \" coucou   \" | tr -d ' '",
+            &format!("coucou{NL}"),
+            false
+        );
+        add_test!(
+            pipe_inline3,
+            "echo \" coucou   \" | tr -d ' '",
+            "coucou",
+            true
+        );
+    } else if #[cfg(target_family = "windows")] {
+        add_test!(
+            pipe3,
+            "echo coucou   | tr -d ' '",
+            &format!("coucou{NL}"),
+            false
+        );
+        add_test!(
+            pipe_inline3,
+            "echo coucou   | tr -d ' '",
+            "coucou",
+            true
+        );
+    }
+}
 
-add_test!(quote1, "echo \"\"", &format!("{NL}"), false);
-add_test!(quote2, "echo \"\\\"\"", &format!("\"{NL}"), false);
-add_test!(quote3, "echo ''", &format!("{NL}"), false);
-add_test!(quote4, "echo '\\'", &format!("\\{NL}"), false);
+cfg_if!(
+    if #[cfg(target_family = "unix")] {
+        add_test!(quote_inline1, "echo \"\"", "", true);
+        add_test!(quote_inline2, "echo \"\\\"\"", "\"", true);
+        add_test!(quote_inline3, "echo ''", "", true);
+        add_test!(quote_inline4, "echo '\\'", "\\", true);
+
+        add_test!(quote1, "echo \"\"", &format!("{NL}"), false);
+        add_test!(quote2, "echo \"\\\"\"", &format!("\"{NL}"), false);
+        add_test!(quote3, "echo ''", &format!("{NL}"), false);
+        add_test!(quote4, "echo '\\'", &format!("\\{NL}"), false);
+    }
+);
 
 add_test!(
     mixed_inline1,
