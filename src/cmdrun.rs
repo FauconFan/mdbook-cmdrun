@@ -31,9 +31,11 @@ cfg_if! {
     if #[cfg(target_family = "unix")] {
         const LAUNCH_SHELL_COMMAND: &str = "sh";
         const LAUNCH_SHELL_FLAG: &str = "-c";
+        const NEWLINE: &str = "\n";
     } else if #[cfg(target_family = "windows")] {
         const LAUNCH_SHELL_COMMAND: &str = "cmd";
         const LAUNCH_SHELL_FLAG: &str = "/C";
+        const NEWLINE: &str = "\r\n";
     }
 }
 
@@ -260,7 +262,8 @@ impl CmdRun {
             (Some(code), Some(correct_code)) => {
                 if code != correct_code {
                     Ok(format!(
-                        "**cmdrun error**: '{command}' returned exit code {code} instead of {correct_code}.\n{0}\n{1}",
+                        "**cmdrun error**: '{command}' returned exit code {code} instead of {correct_code}.{0}{1}{0}{2}",
+                        NEWLINE,
                         String::from_utf8_lossy(&output.stdout),
                         String::from_utf8_lossy(&output.stderr)))
                 } else {
