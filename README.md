@@ -167,5 +167,5 @@ I would like to thank some contributors for their valuable help in improving thi
 - @exsjabe: Integrating Windows and inline cmdrun calls.  
 - [@tomeichlersmith](https://github.com/tomeichlersmith): Return code expectations and cmdrun argument parsing.
 
-Current version: 0.7.2  
+Current version: 0.7.3  
 License: MIT
