@@ -165,5 +165,5 @@ At the moment of writing, there are examples using:
 
 I would like to thank [@exsjabe](https://github.com/exsjabe) for his valuable help with integrating Windows support and inline cmdrun calls.
 
-Current version: 0.7.1  
+Current version: 0.7.2  
 License: MIT
